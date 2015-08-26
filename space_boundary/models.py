@@ -8,7 +8,7 @@ class SpaceBoundary(models.Model):
     geocode = models.CharField(max_length=50)
     geom = models.MultiPolygonField()
 
-    parent = models.ManyToManyField("self", through='SpaceBoundaryRelationship', symmetrical=False)
+    child = models.ManyToManyField("self", through='SpaceBoundaryRelationship', symmetrical=False)
 
     class Meta:
         db_table = '"malha_2013"."space_boundary"'
