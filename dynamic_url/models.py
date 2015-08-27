@@ -21,6 +21,20 @@ class HierarchicalStructure(models.Model):
 
         return children
 
+    def get_level_down(self, down):
+        children = self.levels_down()
+        for child in children:
+            if child.name == down:
+                return child
+        return None
+
+    def get_level_up(self, up):
+        parents = self.levels_up()
+        for parent in parents:
+            if parent.name == up:
+                return parent
+        return None
+
     def __str__(self):
         return self.name
 

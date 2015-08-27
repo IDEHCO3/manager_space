@@ -1,6 +1,7 @@
 from rest_framework import generics
 from space_boundary.models import SpaceBoundary
 from serializers import SpaceBoundarySerializer
+from dynamic_url.models import HierarchicalStructure
 
 # Create your views here.
 class SpaceBoundariesList(generics.ListCreateAPIView):
@@ -9,25 +10,33 @@ class SpaceBoundariesList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         query = []
-        if self.kwargs.has_key('state_level'):
-            filter1 = self.kwargs['state_level']
-            query = SpaceBoundary.objects.filter(type=filter1)
 
-        if self.kwargs.has_key('state_name'):
-            filter1_name = self.kwargs['state_name']
-            query = query.filter(name=filter1_name)
-
-        if self.kwargs.has_key('municipio_level'):
-            if query.__len__() == 0:
+        if self.kwargs.has_key('dynamic_url'):
+            query = SpaceBoundary.objects.all()
+            filters_list = self.kwargs['dynamic_url'].split("/")
+            hierarchical = HierarchicalStructure.objects.all().filter(name=filters_list[0])[0]
+            if not hierarchical:
                 return []
-            else:
-                query = query[0]
-            filter2 = self.kwargs['municipio_level']
-            query = query.child.all().filter(type=filter2)
 
-        if self.kwargs.has_key('municipio_name'):
-            filter2_name = self.kwargs['municipio_name']
-            query = query.filter(name=filter2_name)
+            for idx, filter in enumerate(filters_list):
+                if idx == 0:
+                    continue
+                hierarchical = hierarchical.get_level_down(filter.lower())
+                if not hierarchical:
+                    return []
+
+            for idx, filter in enumerate(filters_list):
+                if idx == 0:
+                    continue
+                if idx % 2 == 1:
+                    if idx != 1 and query.__len__() >= 1:
+                        query = query[0]
+                        query = query.col_of_children.all()
+                    filter = filter.lower()
+                    query = query.filter(type=filter)
+                else:
+                    filter = filter.upper()
+                    query = query.filter(name=filter)
 
         return query
 
@@ -39,6 +48,3 @@ class SpaceBoundariesDetail(generics.RetrieveUpdateDestroyAPIView):
 class DynamicURL(generics.GenericAPIView):
     queryset = SpaceBoundary.objects.all()
     serializer_class = SpaceBoundarySerializer
-
-def any(request):
-    return
