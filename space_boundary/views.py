@@ -35,3 +35,10 @@ class SpaceBoundariesList(generics.ListCreateAPIView):
 class SpaceBoundariesDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = SpaceBoundary.objects.all()
     serializer_class = SpaceBoundarySerializer
+
+class DynamicURL(generics.GenericAPIView):
+    queryset = SpaceBoundary.objects.all()
+    serializer_class = SpaceBoundarySerializer
+
+def any(request):
+    return

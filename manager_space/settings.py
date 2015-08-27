@@ -44,6 +44,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_gis',
     'space_boundary',
+    'dynamic_url',
+
 )
 
 MIDDLEWARE_CLASSES = (
